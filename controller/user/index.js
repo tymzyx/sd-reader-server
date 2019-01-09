@@ -51,6 +51,40 @@ class User {
             });
         }
     }
+
+    async login(req, res) {
+        const { username, password } = req.body;
+        try {
+            const hasExisted = await UserModel.findOne({name: username})
+            if (hasExisted) {
+                if (hasExisted.password === encryption(password)) {
+                    res.send({
+                        status: 1,
+                        type: 'SUCCESS',
+                        message: '登陆成功~',
+                    })
+                } else {
+                    res.send({
+                        status: 0,
+                        type: 'FAILED',
+                        message: '密码错误~',
+                    })
+                }
+            } else {
+                res.send({
+                    status: 0,
+                    type: 'FAILED',
+                    message: '账号不存在~',
+                })
+            }
+        } catch (err) {
+            res.send({
+                status: 0,
+                type: 'FAILED',
+                message: '登录失败~',
+            })
+        }
+    }
     encryption(password) {
         const newpassword = this.Md5(this.Md5(password).substr(2, 7) + this.Md5(password));
         return newpassword
