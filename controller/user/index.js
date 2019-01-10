@@ -12,6 +12,7 @@ const mockData = {
 class User {
     constructor() {
         this.register = this.register.bind(this);
+        this.login = this.login.bind(this);
         this.encryption = this.encryption.bind(this);
     }
 
@@ -55,9 +56,9 @@ class User {
     async login(req, res) {
         const { username, password } = req.body;
         try {
-            const hasExisted = await UserModel.findOne({name: username})
-            if (hasExisted) {
-                if (hasExisted.password === encryption(password)) {
+            const userInfo = await UserModel.findOne({name: username});
+            if (userInfo) {
+                if (userInfo.password === this.encryption(password)) {
                     res.send({
                         status: 1,
                         type: 'SUCCESS',
@@ -78,6 +79,7 @@ class User {
                 })
             }
         } catch (err) {
+            console.log(err);
             res.send({
                 status: 0,
                 type: 'FAILED',
