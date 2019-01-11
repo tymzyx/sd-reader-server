@@ -14,8 +14,6 @@ const userSchema = new Schema({
     create_time: String
 });
 
-userSchema.index({id: 1});
-
 const User = mongoose.model('User', userSchema, 'user');
 
 export default User;

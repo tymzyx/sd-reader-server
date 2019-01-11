@@ -13,7 +13,8 @@ const bookSchema = new Schema({
     problems: Array,
     brief: String,
     content: Array,
-    catalog: Array
+    catalog: Array,
+    image: String
 });
 
 const Book = mongoose.model('Book', bookSchema, 'book');

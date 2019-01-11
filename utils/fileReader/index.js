@@ -28,26 +28,26 @@ const bookDetail = {
 const bookUrl = path.resolve(__dirname, '../../test.txt');
 
 const saveBook = () => {
-    fs.readFile(bookUrl, (err, data) => {
+    fs.readFile(bookUrl, async(err, data) => {
         if (err) {
             console.log('error', err);
             process.exit();
         } else {
-            // console.log('data', data.toString());
-            data = data.toString();
-            let dataList = data.split('\n');
-            dataList = dataList.map(ele => (
-                ele.trim().replace(/[\r\n]/g, '')
-            )).filter(ele => ele);
-            bookDetail.content = dataList;
-            BookModel.create(bookDetail, (err) => {
-                if (err) {
-                    console.log(err);
-                } else {
-                    console.log('save success');
-                }
+            try {
+                data = data.toString();
+                let dataList = data.split('\n');
+                dataList = dataList.map(ele => (
+                    ele.trim().replace(/[\r\n]/g, '')
+                )).filter(ele => ele);
+                bookDetail.content = dataList;
+                const count = await BookModel.countDocuments({});
+                bookDetail.id = count + 1;
+                await BookModel.create(bookDetail);
+                console.log('save success!');
                 process.exit();
-            });
+            } catch (err) {
+                console.log('error', err);
+            }
         }
     });
 };
