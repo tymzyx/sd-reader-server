@@ -44,9 +44,10 @@ const saveBook = () => {
                 bookDetail.id = count + 1;
                 await BookModel.create(bookDetail);
                 console.log('save success!');
-                process.exit();
             } catch (err) {
                 console.log('error', err);
+            } finally {
+                process.exit();
             }
         }
     });
