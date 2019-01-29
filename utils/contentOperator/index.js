@@ -1,17 +1,25 @@
 const segmentOperator = (segment, wordNum) => {
     let splitRes = [];
     if (segment.length < (wordNum - 2)) {
-        splitRes.push(segment);
+        splitRes.push({
+            line: segment,
+            first: true
+        });
     } else {
-        splitRes.push(segment.substring(0, wordNum - 2));
+        splitRes.push({
+            line: segment.substring(0, wordNum - 2),
+            first: true
+        });
         segment = segment.substring(wordNum - 2);
         if (segment.length < wordNum) {
-            splitRes.push(segment);
+            splitRes.push({
+                line: segment
+            });
         } else {
             const reg = new RegExp(`.{${wordNum}}`, 'g');
             const segmentArr = segment.match(reg);
             segmentArr.push(segment.substring(segmentArr.join('').length));
-            splitRes = splitRes.concat(segmentArr);
+            splitRes = splitRes.concat(segmentArr.map((line) => ({ line })));
         }
     }
     return splitRes;
@@ -28,7 +36,10 @@ const pageOperator = (content, rowNum) => {
     //进行循环
     while (index < len) {
         //循环过程中设置result[0]和result[1]的值。该值根据array.slice切割得到。
-        result[resIndex++] = content.slice(index, (index += rowNum));
+        result[resIndex++] = {
+            content: content.slice(index, (index += rowNum)),
+            page: resIndex
+        };
     }
     //输出新数组
     return result;
