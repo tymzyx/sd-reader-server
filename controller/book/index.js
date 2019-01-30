@@ -2,6 +2,7 @@ import BookModel from '../../models/book/index';
 import { segmentOperator, pageOperator } from '../../utils/contentOperator/index';
 
 let globalBookContent = {};
+let globalContentQuery;
 
 class Book {
     constructor() {
@@ -39,19 +40,25 @@ class Book {
     async bookContent(req, res) {
         const { bookId, pageNum = 1, wordNum, rowNum } = req.query;
         try {
-            if (globalBookContent.id !== bookId ||
+            if (globalBookContent.id !== bookId) {
+                globalContentQuery = await BookModel.findOne({ id: bookId }, 'content');
+                globalBookContent.id = bookId;
+            }
+            if (
+                globalBookContent.id !== bookId ||
                 globalBookContent.wordNum !== wordNum ||
-                globalBookContent.rowNum !== rowNum) {
+                globalBookContent.rowNum !== rowNum
+            ) {
                 globalBookContent = {
-                    id: bookId,
+                    ...globalBookContent,
                     wordNum,
                     rowNum
                 };
-                const query = await BookModel.findOne({ id: bookId }, 'content');
+
                 let splitContent = [];
-                query.content.forEach((segment, index) => {
+                globalContentQuery.content.forEach((segment, index) => {
                     splitContent = splitContent.concat(segmentOperator(segment, +wordNum));
-                    index !== (query.content.length - 1) && splitContent.push('blank line');
+                    index !== (globalContentQuery.content.length - 1) && splitContent.push('blank line');
                 });
                 const operatedContent = pageOperator(splitContent, +rowNum);
                 globalBookContent.content = operatedContent;
