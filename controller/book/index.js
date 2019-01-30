@@ -39,10 +39,15 @@ class Book {
     async bookContent(req, res) {
         const { bookId, pageNum = 1, wordNum, rowNum } = req.query;
         try {
-            if (globalBookContent.id !== bookId) {
-                globalBookContent = {};
+            if (globalBookContent.id !== bookId ||
+                globalBookContent.wordNum !== wordNum ||
+                globalBookContent.rowNum !== rowNum) {
+                globalBookContent = {
+                    id: bookId,
+                    wordNum,
+                    rowNum
+                };
                 const query = await BookModel.findOne({ id: bookId }, 'content');
-                globalBookContent.id = bookId;
                 let splitContent = [];
                 query.content.forEach((segment, index) => {
                     splitContent = splitContent.concat(segmentOperator(segment, +wordNum));
