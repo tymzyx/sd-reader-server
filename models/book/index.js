@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
 const bookSchema = new Schema({
-    id: Number,
+    id: String,
     title: String,
     author: String,
     score: Number,

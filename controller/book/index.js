@@ -5,10 +5,6 @@ let globalBookContent = {};
 let globalContentQuery;
 
 class Book {
-    constructor() {
-
-    }
-
     async bookDetail(req, res) {
         const { bookId } = req.query;
         try {
@@ -25,7 +21,7 @@ class Book {
             };
             res.send({
                 status: 1,
-                message: { data: detailInfo, code: 200 }
+                message: detailInfo
             });
         } catch (err) {
             console.log('查询书籍详情失败', err);
@@ -64,7 +60,10 @@ class Book {
                 globalBookContent.content = operatedContent;
                 globalBookContent.totalPage = operatedContent.length;
             }
-            const sNum = pageNum - 10 < 0 ? 0 : pageNum - 10;
+            let sNum = pageNum - 10 < 0 ? 0 : pageNum - 10;
+            if (sNum > globalBookContent.totalPage) {
+                sNum = globalBookContent.totalPage - 20;
+            }
             const eNum = sNum + 20;
             const retBookContent = {
                 id: globalBookContent.id,
@@ -73,7 +72,7 @@ class Book {
             };
             res.send({
                 status: 1,
-                message: { data: retBookContent, code: 200 }
+                message: retBookContent
             });
         } catch (err) {
             console.log('获取书籍内容失败', err);

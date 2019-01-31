@@ -1,6 +1,7 @@
 import UserModel from '../../models/user/index';
 import crypto from 'crypto';
 import dtime from 'time-formater';
+import uuidv4 from 'uuid/v4';
 
 const mockData = {
     username: 'test',
@@ -17,7 +18,8 @@ class User {
     }
 
     async register(req, res) {
-        const { username, password, email, mobile } = req.body;
+        const { password, email, mobile } = req.body;
+        const username = req.body.username || mobile;
         // const { username, password, email, mobile } = mockData;
         try {
             const existedUser = await UserModel.findOne({ name: username });
@@ -31,6 +33,7 @@ class User {
             } else {
                 const newPassword = this.encryption(password);
                 const newUser = {
+                    id: uuidv4(),
                     name: username,
                     password: newPassword,
                     create_time: dtime(new Date()).format('YYYY-MM-DD'),
@@ -43,7 +46,7 @@ class User {
                     message: '用户注册成功',
                 });
             }
-        } catch(err) {
+        } catch (err) {
             console.log('注册用户失败', err);
             res.send({
                 status: 0,

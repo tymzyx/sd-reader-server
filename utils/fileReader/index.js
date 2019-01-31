@@ -41,7 +41,7 @@ const saveBook = () => {
                 )).filter(ele => ele);
                 bookDetail.content = dataList;
                 const count = await BookModel.countDocuments({});
-                bookDetail.id = count + 1;
+                bookDetail.id = String(count + 1);
                 await BookModel.create(bookDetail);
                 console.log('save success!');
             } catch (err) {
