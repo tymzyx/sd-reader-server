@@ -25,6 +25,11 @@ app.all('*', (req, res, next) => {
     }
 });
 
+// app.use((req, res, next) => {
+//     console.log('middle', req.path, req.url); // 通过req.path来判断是否检测session
+//     next();
+// });
+
 app.get('/api', (req, res) => {
     res.json({message: 'api can work!'});
 });
