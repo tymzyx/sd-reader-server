@@ -1,5 +1,7 @@
 import BookModel from '../../models/book/index';
 import { segmentOperator, pageOperator } from '../../utils/contentOperator/index';
+import uuidv4 from 'uuid/v4';
+import pinyin from 'pinyin';
 
 let globalBookContent = {};
 let globalContentQuery;
@@ -82,6 +84,65 @@ class Book {
                 message: '获取书籍内容失败',
             });
         }
+    }
+
+    async bookUpload(req, res) {
+        try {
+            const { title, author, type, share } = req.body;
+            let { brief } = req.body;
+            const { buffer } = req.file;
+            brief = brief === undefined ? '' : brief;
+
+            const pinyinLists = pinyin(title, {
+                style: pinyin.STYLE_NORMAL
+            });
+            const pinyinList = [];
+            pinyinLists.forEach(item => {
+                pinyinList.push(item[0]);
+            });
+            const pinyinStr = pinyinList.join(' ');
+
+            const bookContent = buffer.toString();
+            let dataList = bookContent.split('\n');
+            dataList = dataList.map(ele => (
+                ele.trim().replace(/[\r\n]/g, '')
+            )).filter(ele => ele);
+
+            const bookDetail = {
+                id: uuidv4(),
+                title,
+                author,
+                share,
+                type,
+                brief,
+                pinyin: pinyinStr,
+                content: dataList,
+                score: 0,
+                readers: 0
+            };
+            await BookModel.create(bookDetail);
+            res.send({
+                status: 1,
+                message: 'success',
+            });
+        } catch (error) {
+            console.log(error);
+            res.send({
+                status: 0,
+                type: 'UPLOAD_BOOK_FAILED',
+                message: '上传书籍失败',
+            });
+        }
+    }
+
+    bookCover(req, res) {
+        const { buffer } = req.file;
+        res.send({
+            status: 1,
+            message: {
+                img: buffer.toString('base64')
+            }
+        });
     }
 }
 

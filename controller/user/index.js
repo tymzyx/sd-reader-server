@@ -65,7 +65,10 @@ class User {
                     res.send({
                         status: 1,
                         type: 'SUCCESS',
-                        message: '登陆成功~',
+                        message: {
+                            userId: userInfo.id,
+                            username: userInfo.name
+                        },
                     })
                 } else {
                     res.send({

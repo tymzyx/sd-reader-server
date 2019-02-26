@@ -18,7 +18,7 @@ const bookDetail = {
     author: '杨绛',
     score: 5,
     readers: 0,
-    share: 1,
+    share: '1',
     type: '小说',
     brief: '',
     content: []

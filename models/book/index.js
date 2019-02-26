@@ -5,10 +5,11 @@ const Schema = mongoose.Schema;
 const bookSchema = new Schema({
     id: String,
     title: String,
+    pinyin: String,
     author: String,
     score: Number,
     readers: { type: Number, default: 0 },
-    share: Number, // 分享人id
+    share: String, // 分享人id
     type: String,
     problems: Array,
     brief: String,
