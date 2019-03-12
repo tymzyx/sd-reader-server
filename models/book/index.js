@@ -7,6 +7,7 @@ const bookSchema = new Schema({
     title: String,
     pinyin: String,
     author: String,
+    author_pinyin: String,
     score: Number,
     readers: { type: Number, default: 0 },
     share: String, // 分享人id

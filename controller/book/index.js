@@ -102,6 +102,15 @@ class Book {
             });
             const pinyinStr = pinyinList.join(' ');
 
+            const authorPinyinLists = pinyin(author, {
+                style: pinyin.STYLE_NORMAL
+            });
+            const authorPinyinList = [];
+            authorPinyinLists.forEach(item => {
+                authorPinyinList.push(item[0]);
+            });
+            const author_pinyin = authorPinyinList.join(' ');
+
             const bookContent = buffer.toString();
             let dataList = bookContent.split('\n');
             dataList = dataList.map(ele => (
@@ -112,6 +121,7 @@ class Book {
                 id: uuidv4(),
                 title,
                 author,
+                author_pinyin,
                 share,
                 type,
                 brief,
