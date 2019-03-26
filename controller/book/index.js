@@ -1,4 +1,5 @@
 import BookModel from '../../models/book/index';
+import KeywordModel from '../../models/keyword/index';
 import { segmentOperator, pageOperator } from '../../utils/contentOperator/index';
 import uuidv4 from 'uuid/v4';
 import pinyin from 'pinyin';
@@ -89,9 +90,10 @@ class Book {
     async bookUpload(req, res) {
         try {
             const { title, author, type, share } = req.body;
-            let { brief } = req.body;
+            let { brief, image } = req.body;
             const { buffer } = req.file;
             brief = brief === undefined ? '' : brief;
+            image = image === undefined ? '' : image;
 
             const pinyinLists = pinyin(title, {
                 style: pinyin.STYLE_NORMAL
@@ -125,6 +127,7 @@ class Book {
                 share,
                 type,
                 brief,
+                image,
                 pinyin: pinyinStr,
                 content: dataList,
                 score: 0,
@@ -145,6 +148,7 @@ class Book {
         }
     }
 
+    // 上传书籍图片
     bookCover(req, res) {
         const { buffer } = req.file;
         res.send({
@@ -153,6 +157,111 @@ class Book {
                 img: buffer.toString('base64')
             }
         });
+    }
+
+    async bookSearchTips(req, res) {
+        const { keyword } = req.query;
+        try {
+            const reg = new RegExp(keyword, 'i');
+            const result = await BookModel.find(
+                {
+                    $or: [
+                        { title: { $regex: reg }},
+                        { pinyin: { $regex: reg }},
+                        { author: { $regex: reg }},
+                        { author_pinyin: { $regex: reg }}
+                    ]
+                },
+                'title author pinyin author_pinyin',
+                {
+                    limit: 100
+                }
+            );
+            const cacheWords = await KeywordModel.find({
+                keyword: { $regex: reg }
+            }, 'keyword', { limit: 100 });
+            if (result.length || cacheWords.length) {
+                const items = [];
+                cacheWords.forEach(word => {
+                    items.push(word.keyword);
+                });
+                result.forEach(single => {
+                    if (reg.test(single.title) || reg.test(single.pinyin)) {
+                        items.push(single.title);
+                    }
+                    if (reg.test(single.author) || reg.test(single.author_pinyin)) {
+                        items.push(single.author);
+                    }
+                });
+                res.send({
+                    status: 1,
+                    message: {
+                        items
+                    }
+                });
+            } else {
+                res.send({
+                    status: 1,
+                    message: {
+                        items: []
+                    }
+                });
+            }
+        } catch (error) {
+            console.log('error', error);
+            res.send({
+                status: 0,
+                type: 'SEARCH_TIPS_FAILED',
+                message: '关键词联想失败',
+            });
+        }
+    }
+
+    async bookSearch(req, res) {
+        const { keyword } = req.query;
+        try {
+            const reg = new RegExp(keyword, 'i');
+            const result = await BookModel.find(
+                {
+                    $or: [
+                        { title: { $regex: reg }},
+                        { pinyin: { $regex: reg }},
+                        { author: { $regex: reg }},
+                        { author_pinyin: { $regex: reg }}
+                    ]
+                },
+                'title author image brief'
+            );
+            if (result.length) {
+                res.send({
+                    status: 1,
+                    message: {
+                        results: result
+                    }
+                });
+                const keywords = await KeywordModel.find({ keyword });
+                if (!keywords.length) {
+                    await KeywordModel.create({
+                        id: uuidv4(),
+                        keyword
+                    });
+                }
+            } else {
+                res.send({
+                    status: 1,
+                    message: {
+                        results: []
+                    }
+                });
+            }
+        } catch (error) {
+            console.log('error', error);
+            res.send({
+                status: 0,
+                type: 'SEARCH_BOOK_FAILED',
+                message: '搜索书籍失败',
+            });
+        }
     }
 }
 
