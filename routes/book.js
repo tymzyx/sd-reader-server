@@ -11,5 +11,6 @@ router.post('/upload', upload.single('book'), Book.bookUpload);
 router.post('/cover', upload.single('cover'), Book.bookCover);
 router.get('/keywords', Book.bookSearchTips);
 router.get('/search', Book.bookSearch);
+router.get('/list', Book.bookList);
 
 export default router;

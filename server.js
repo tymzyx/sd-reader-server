@@ -46,4 +46,4 @@ app.use(morgan('dev'));
 
 router(app);
 
-app.listen(port, () => console.log('sd-reader api ran at http://localhost:' + port));
+app.listen(port, () => console.log('sd-reader api running at http://localhost:' + port));

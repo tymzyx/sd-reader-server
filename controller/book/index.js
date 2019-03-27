@@ -8,6 +8,33 @@ let globalBookContent = {};
 let globalContentQuery;
 
 class Book {
+    async bookList(req, res) {
+        const { type, startNum, limit } = req.query;
+        try {
+            const list = await BookModel.find(
+                {
+                    type
+                },
+                'title image id',
+                {
+                    skip: +startNum,
+                    limit: +limit
+                }
+            );
+            res.send({
+                status: 1,
+                message: { list }
+            });
+        } catch (err) {
+            console.log('查询书籍列表失败', err);
+            res.send({
+                status: 0,
+                type: 'QUERY_BOOK_LIST_FAILED',
+                message: '查询书籍列表失败',
+            });
+        }
+    }
+
     async bookDetail(req, res) {
         const { bookId } = req.query;
         try {
