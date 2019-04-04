@@ -1,5 +1,5 @@
 import CommentModel from '../../models/comment/index';
-import uuidv4 from 'uuid/v4';
+import uuidv1 from 'uuid/v1';
 import dtime from 'time-formater';
 import BookModel from "../../models/book";
 
@@ -8,7 +8,7 @@ class Comment {
         try {
             const { author, content, type, toId, likes, rate } = req.body;
             const time = dtime(new Date()).format('YYYY-MM-DD HH:MM');
-            const uid = uuidv4();
+            const uid = uuidv1();
             let newComment;
             if (type === 'book') {
                 newComment = {

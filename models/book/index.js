@@ -16,7 +16,8 @@ const bookSchema = new Schema({
     brief: String,
     content: Array,
     catalog: Array,
-    image: String
+    image: String,
+    time: String
 });
 
 const Book = mongoose.model('Book', bookSchema, 'book');

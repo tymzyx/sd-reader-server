@@ -1,7 +1,7 @@
 import BookModel from '../../models/book/index';
 import KeywordModel from '../../models/keyword/index';
 import { segmentOperator, pageOperator } from '../../utils/contentOperator/index';
-import uuidv4 from 'uuid/v4';
+import uuidv1 from 'uuid/v1';
 import pinyin from 'pinyin';
 
 let globalBookContent = {};
@@ -26,11 +26,11 @@ class Book {
                 message: { list }
             });
         } catch (err) {
-            console.log('查询书籍列表失败', err);
+            console.log('获取书籍列表失败', err);
             res.send({
                 status: 0,
                 type: 'QUERY_BOOK_LIST_FAILED',
-                message: '查询书籍列表失败',
+                message: '获取书籍列表失败',
             });
         }
     }
@@ -38,7 +38,8 @@ class Book {
     async bookDetail(req, res) {
         const { bookId } = req.query;
         try {
-            const detail = await BookModel.findOne({ id: bookId }, 'id title image author share brief readers score');
+            const detail = await BookModel.findOne({ id: bookId },
+                'id title image author share brief readers score type');
             const detailInfo = {
                 id: detail.id,
                 title: detail.title,
@@ -47,7 +48,8 @@ class Book {
                 share: detail.share,
                 brief: detail.brief,
                 readers: detail.readers,
-                score: detail.score
+                score: detail.score,
+                type: detail.type
             };
             res.send({
                 status: 1,
@@ -116,7 +118,7 @@ class Book {
 
     async bookUpload(req, res) {
         try {
-            const { title, author, type, share } = req.body;
+            const { title, author, type, share, id } = req.body;
             let { brief, image } = req.body;
             const { buffer } = req.file;
             brief = brief === undefined ? '' : brief;
@@ -147,7 +149,6 @@ class Book {
             )).filter(ele => ele);
 
             const bookDetail = {
-                id: uuidv4(),
                 title,
                 author,
                 author_pinyin,
@@ -156,11 +157,19 @@ class Book {
                 brief,
                 image,
                 pinyin: pinyinStr,
-                content: dataList,
-                score: 0,
-                readers: 0
+                content: dataList
             };
-            await BookModel.create(bookDetail);
+
+            if (id) {
+                // 更新
+                await BookModel.updateOne({ id }, bookDetail);
+            } else {
+                bookDetail.id = uuidv1();
+                bookDetail.score = 0;
+                bookDetail.readers = 0;
+                // 新建
+                await BookModel.create(bookDetail);
+            }
             res.send({
                 status: 1,
                 message: 'success',
@@ -269,7 +278,7 @@ class Book {
                 const keywords = await KeywordModel.find({ keyword });
                 if (!keywords.length) {
                     await KeywordModel.create({
-                        id: uuidv4(),
+                        id: uuidv1(),
                         keyword
                     });
                 }
